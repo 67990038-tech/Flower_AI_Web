@@ -1,9 +1,22 @@
+# ==========================================
+# 1. Import
+# ==========================================
+
 from flask import Flask, render_template, request
 import requests
 import base64
 import os
 
+
+# ==========================================
+# 2. ตั้งค่า
+# ==========================================
+
 app = Flask(__name__)
+
+API_URL = os.environ.get("API_URL")
+
+
 
 
 # ==========================================
@@ -109,99 +122,173 @@ flowers = {
 }
 
 
-# ==========================================
-# 2. ข้อมูล Roboflow
-# ==========================================
-
-API_URL = os.environ.get("API_URL")
-
-
-# ==========================================
-# 3. หน้าเว็บไซต์
-# ==========================================
-
 @app.route("/", methods=["GET", "POST"])
 def home():
 
     result = None
     error = None
 
+    # ทำงานเมื่อกดปุ่มตรวจจับ
     if request.method == "POST":
 
+        # ----------------------------------
         # ตรวจสอบว่ามีรูปหรือไม่
+        # ----------------------------------
+
         if "image" not in request.files:
+
+            error = "ไม่พบรูปภาพ"
+
+            return render_template(
+                "index.html",
+                result=result,
+                error=error
+            )
+
+
+        image = request.files["image"]
+
+
+        # ----------------------------------
+        # ตรวจสอบว่าเลือกรูปหรือไม่
+        # ----------------------------------
+
+        if image.filename == "":
+
             error = "กรุณาเลือกรูปภาพ"
 
-        else:
-            image = request.files["image"]
+            return render_template(
+                "index.html",
+                result=result,
+                error=error
+            )
 
-            if image.filename == "":
-                error = "กรุณาเลือกรูปภาพ"
+
+        # ----------------------------------
+        # ตรวจสอบ API_URL
+        # ----------------------------------
+
+        if not API_URL:
+
+            error = "ไม่พบ API_URL กรุณาตั้งค่าใน Render"
+
+            return render_template(
+                "index.html",
+                result=result,
+                error=error
+            )
+
+
+        try:
+
+            # ----------------------------------
+            # ส่งรูปไป Roboflow
+            # ----------------------------------
+
+            response = requests.post(
+                API_URL,
+                files={
+                    "file": (
+                        image.filename,
+                        image.read(),
+                        image.content_type
+                    )
+                }
+            )
+
+
+            # ----------------------------------
+            # แสดงข้อมูลใน Render Logs
+            # ----------------------------------
+
+            print("Roboflow Status Code:", response.status_code)
+            print("Roboflow Response:", response.text)
+
+
+            # ----------------------------------
+            # ตรวจสอบว่า Roboflow ตอบกลับสำเร็จหรือไม่
+            # ----------------------------------
+
+            if response.status_code != 200:
+
+                error = (
+                    f"Roboflow Error {response.status_code}: "
+                    f"{response.text}"
+                )
+
+                return render_template(
+                    "index.html",
+                    result=result,
+                    error=error
+                )
+
+
+            # ----------------------------------
+            # แปลงข้อมูล JSON
+            # ----------------------------------
+
+            data = response.json()
+
+
+            # ----------------------------------
+            # ตรวจสอบว่ามี predictions หรือไม่
+            # ----------------------------------
+
+            if "predictions" not in data or len(data["predictions"]) == 0:
+
+                error = "ไม่พบดอกไม้ที่ AI รู้จักในรูปภาพ"
+
+                return render_template(
+                    "index.html",
+                    result=result,
+                    error=error
+                )
+
+
+            # ----------------------------------
+            # เลือกผลลัพธ์แรก
+            # ----------------------------------
+
+            prediction = data["predictions"][0]
+
+            flower_name = prediction["class"]
+            confidence = round(prediction["confidence"] * 100, 2)
+
+
+            # ----------------------------------
+            # หาข้อมูลดอกไม้
+            # ----------------------------------
+
+            if flower_name in flowers:
+
+                info = flowers[flower_name]
+
+                result = {
+                    "class": flower_name,
+                    "confidence": confidence,
+                    "thai": info["thai"],
+                    "meaning": info["meaning"],
+                    "opportunity": info["opportunity"]
+                }
 
             else:
-                try:
-                    # อ่านรูปและแปลงเป็น Base64
-                    image_data = base64.b64encode(
-                        image.read()
-                    ).decode("utf-8")
 
-                    # ส่งรูปไปให้ AI
-                    response = requests.post(
-                        API_URL,
-                        data=image_data,
-                        headers={
-                            "Content-Type":
-                            "application/x-www-form-urlencoded"
-                        }
-                    )
+                error = (
+                    f"AI ตรวจพบ {flower_name} "
+                    f"แต่ยังไม่มีข้อมูลดอกไม้นี้ในระบบ"
+                )
 
-                    # รับผลลัพธ์จาก AI
-                    data = response.json()
 
-                    # ตรวจสอบว่าตรวจพบดอกไม้หรือไม่
-                    if len(data["predictions"]) == 0:
+        except Exception as e:
 
-                        error = "AI ไม่พบดอกไม้ที่รู้จัก"
+            print("Error:", str(e))
 
-                    else:
+            error = f"เกิดข้อผิดพลาด: {str(e)}"
 
-                        # เลือกผลที่ Confidence สูงที่สุด
-                        prediction = max(
-                            data["predictions"],
-                            key=lambda x: x["confidence"]
-                        )
 
-                        flower_name = prediction["class"]
-
-                        confidence = round(
-                            prediction["confidence"] * 100,
-                            2
-                        )
-
-                        # ค้นหาข้อมูลดอกไม้
-                        info = flowers.get(flower_name)
-
-                        if info:
-
-                            result = {
-                                "class": flower_name,
-                                "thai": info["thai"],
-                                "meaning": info["meaning"],
-                                "opportunity": info["opportunity"],
-                                "confidence": confidence
-                            }
-                        else:
-
-                            result = {
-                                "class": flower_name,
-                                "thai": "ยังไม่มีข้อมูล",
-                                "meaning": "-",
-                                "opportunity": "-",
-                                "confidence": confidence
-                            }
-
-                except Exception as e:
-                    error = str(e)
+    # ----------------------------------
+    # ส่งข้อมูลกลับไป index.html
+    # ----------------------------------
 
     return render_template(
         "index.html",
@@ -211,7 +298,7 @@ def home():
 
 
 # ==========================================
-# 4. เริ่มเว็บไซต์
+# 4. เริ่มเว็บ
 # ==========================================
 
 if __name__ == "__main__":
