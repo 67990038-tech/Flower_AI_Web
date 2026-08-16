@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Flower AI</title>
+</head>
+
+<body>
+
+    <h1>🌸 Flower AI</h1>
+
+    <h2>ตรวจจับชนิดดอกไม้</h2>
+
+
+    <!-- =========================
+         เลือกรูป / เปิดกล้อง
+         ========================= -->
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <p>เลือกรูปดอกไม้:</p>
+
+        <!-- เลือกรูปจากเครื่อง -->
+        <input
+            type="file"
+            id="imageInput"
+            name="image"
+            accept="image/*"
+        >
+
+        <br><br>
+
+        <!-- ปุ่มเปิดกล้อง -->
+        <button type="button" id="openCamera">
+            📷 เปิดกล้อง
+        </button>
+
+        <br><br>
+
+        <!-- ภาพจากกล้อง -->
+        <video
+            id="camera"
+            width="400"
+            autoplay
+            playsinline
+            style="display:none;"
+        ></video>
+
+        <br><br>
+
+        <!-- ปุ่มถ่ายรูป -->
+        <button
+            type="button"
+            id="captureButton"
+            style="display:none;"
+        >
+            📸 ถ่ายรูป
+        </button>
+
+
+        <!-- Canvas สำหรับเก็บภาพ -->
+        <canvas
+            id="canvas"
+            style="display:none;"
+        ></canvas>
+
+
+        <!-- แสดงรูปที่เลือกหรือถ่าย -->
+        <br>
+
+        <img
+            id="preview"
+            width="400"
+            style="display:none;"
+        >
+
+        <br><br>
+
+        <!-- ปุ่มส่งไปตรวจจับ -->
+        <button type="submit">
+            🔍 ตรวจจับดอกไม้
+        </button>
+
+    </form>
+
+
+    <!-- =========================
+         แสดง Error
+         ========================= -->
+
+    {% if error %}
+
+        <hr>
+
+        <h3>เกิดข้อผิดพลาด</h3>
+
+        <p>{{ error }}</p>
+
+    {% endif %}
+
+
+    <!-- =========================
+         แสดงผลลัพธ์
+         ========================= -->
+
+    {% if result %}
+
+        <hr>
+
+        <h2>ผลการตรวจจับ</h2>
+
+        <p>
+            <b>AI ตรวจพบ:</b>
+            {{ result.class }}
+        </p>
+
+        <p>
+            <b>ความแม่นยำ:</b>
+            {{ result.confidence }} %
+        </p>
+
+        <p>
+            <b>ชื่อภาษาไทย:</b>
+            {{ result.thai }}
+        </p>
+
+        <p>
+            <b>ความหมาย:</b>
+            {{ result.meaning }}
+        </p>
+
+        <p>
+            <b>โอกาส:</b>
+            {{ result.opportunity }}
+        </p>
+
+    {% endif %}
+
+
+    <!-- =========================
+         JavaScript สำหรับกล้อง
+         ========================= -->
+
+    <script>
+
+        // เรียก Element ต่าง ๆ
+        const imageInput = document.getElementById("imageInput");
+        const openCameraButton = document.getElementById("openCamera");
+        const captureButton = document.getElementById("captureButton");
+
+        const camera = document.getElementById("camera");
+        const canvas = document.getElementById("canvas");
+        const preview = document.getElementById("preview");
+
+        let stream = null;
+
+
+        // =========================
+        // เปิดกล้อง
+        // =========================
+
+        openCameraButton.addEventListener("click", async function () {
+
+            try {
+
+                stream = await navigator.mediaDevices.getUserMedia({
+
+                    video: {
+                        facingMode: "environment"
+                    },
+
+                    audio: false
+
+                });
+
+
+                // ส่งภาพกล้องเข้า video
+                camera.srcObject = stream;
+
+
+                // แสดงกล้อง
+                camera.style.display = "block";
+
+
+                // แสดงปุ่มถ่ายรูป
+                captureButton.style.display = "inline";
+
+            }
+
+            catch (error) {
+
+                alert(
+                    "ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตให้เว็บไซต์ใช้กล้อง"
+                );
+
+                console.log(error);
+
+            }
+
+        });
+
+
+        // =========================
+        // ถ่ายรูป
+        // =========================
+
+        captureButton.addEventListener("click", function () {
+
+            // กำหนดขนาด Canvas ตามภาพจากกล้อง
+            canvas.width = camera.videoWidth;
+            canvas.height = camera.videoHeight;
+
+
+            // วาดภาพจาก Video ลง Canvas
+            const context = canvas.getContext("2d");
+
+            context.drawImage(
+                camera,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            // แปลงเป็นรูป PNG
+            const imageData = canvas.toDataURL("image/png");
+
+
+            // แสดงรูปที่ถ่าย
+            preview.src = imageData;
+
+            preview.style.display = "block";
+
+
+            // แปลง Canvas เป็น File
+            canvas.toBlob(function (blob) {
+
+                const file = new File(
+                    [blob],
+                    "camera_flower.png",
+                    {
+                        type: "image/png"
+                    }
+                );
+
+
+                // นำ File เข้า input name="image"
+                const dataTransfer = new DataTransfer();
+
+                dataTransfer.items.add(file);
+
+                imageInput.files = dataTransfer.files;
+
+            }, "image/png");
+
+
+            // ปิดกล้องหลังถ่ายรูป
+            if (stream) {
+
+                stream.getTracks().forEach(function (track) {
+
+                    track.stop();
+
+                });
+
+                stream = null;
+
+            }
+
+
+            // ซ่อน Video และปุ่มถ่ายรูป
+            camera.style.display = "none";
+
+            captureButton.style.display = "none";
+
+        });
+
+
+        // =========================
+        // เลือกรูปจากเครื่อง
+        // =========================
+
+        imageInput.addEventListener("change", function () {
+
+            if (imageInput.files.length > 0) {
+
+                const selectedImage = imageInput.files[0];
+
+                // แสดงตัวอย่างรูป
+                preview.src = URL.createObjectURL(selectedImage);
+
+                preview.style.display = "block";
+
+            }
+
+        });
+
+    </script>
+
+
+</body>
+</html>
