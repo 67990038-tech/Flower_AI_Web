@@ -3,236 +3,891 @@
 
 <head>
     <meta charset="UTF-8">
+
+    <!-- สำคัญมากสำหรับมือถือ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Flower AI</title>
+
+    <style>
+
+        /* =========================
+           ตั้งค่าพื้นฐาน
+        ========================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, "Noto Sans Thai", sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff7fa,
+                    #f4f8ff
+                );
+
+            color: #333;
+            min-height: 100vh;
+        }
+
+
+        /* =========================
+           ส่วนหัว
+        ========================= */
+
+        header {
+            background: white;
+
+            padding: 20px 8%;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e75480;
+        }
+
+        .nav-text {
+            color: #666;
+            font-size: 16px;
+        }
+
+
+        /* =========================
+           กล่องหลัก
+        ========================= */
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+
+            margin: 40px auto;
+        }
+
+
+        /* =========================
+           ข้อความต้อนรับ
+        ========================= */
+
+        .hero {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .hero h1 {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .hero p {
+            color: #777;
+            font-size: 18px;
+        }
+
+
+        /* =========================
+           ส่วนหลัก
+           Desktop = แนวนอน
+        ========================= */
+
+        .main-grid {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 25px;
+        }
+
+
+        /* =========================
+           Card
+        ========================= */
+
+        .card {
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #e75480;
+        }
+
+
+        /* =========================
+           Upload Area
+        ========================= */
+
+        .upload-box {
+
+            border: 2px dashed #e75480;
+
+            border-radius: 15px;
+
+            padding: 30px;
+
+            text-align: center;
+
+            background: #fff8fb;
+
+            margin-bottom: 20px;
+        }
+
+        .upload-box p {
+            color: #666;
+        }
+
+
+        /* ซ่อน input file เดิม */
+        #imageInput {
+            display: none;
+        }
+
+
+        .upload-label {
+
+            display: inline-block;
+
+            padding: 12px 22px;
+
+            background: #f3f3f3;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+
+            font-weight: bold;
+        }
+
+        .upload-label:hover {
+            background: #e8e8e8;
+        }
+
+
+        /* =========================
+           Buttons
+        ========================= */
+
+        button {
+
+            border: none;
+
+            padding: 13px 20px;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+            transition: 0.3s;
+
+            margin: 5px;
+        }
+
+
+        #openCamera {
+            background: #6c63ff;
+            color: white;
+        }
+
+        #openCamera:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+
+        #captureButton {
+            background: #ff9f43;
+            color: white;
+        }
+
+
+        .detect-button {
+
+            width: 100%;
+
+            background: linear-gradient(
+                135deg,
+                #e75480,
+                #ff7b9c
+            );
+
+            color: white;
+
+            font-weight: bold;
+
+            font-size: 18px;
+
+            padding: 15px;
+
+            margin-top: 15px;
+        }
+
+        .detect-button:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 5px 15px rgba(231, 84, 128, 0.3);
+        }
+
+
+        /* =========================
+           Camera
+        ========================= */
+
+        #camera {
+
+            width: 100%;
+
+            max-width: 500px;
+
+            border-radius: 15px;
+
+            margin-top: 15px;
+        }
+
+
+        /* =========================
+           Preview
+        ========================= */
+
+        #preview {
+
+            width: 100%;
+
+            max-width: 500px;
+
+            margin-top: 15px;
+
+            border-radius: 15px;
+
+            display: none;
+
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+
+        /* =========================
+           ผลการตรวจจับ
+        ========================= */
+
+        .result-card {
+
+            background: #fff;
+
+            border-left: 5px solid #e75480;
+
+            padding: 20px;
+
+            margin-bottom: 15px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 5px 15px rgba(0, 0, 0, 0.06);
+        }
+
+
+        .result-card h3 {
+
+            margin-top: 0;
+
+            color: #e75480;
+        }
+
+
+        .result-item {
+
+            margin: 10px 0;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================
+           Error
+        ========================= */
+
+        .error-box {
+
+            background: #fff0f0;
+
+            color: #b00020;
+
+            padding: 15px;
+
+            border-radius: 10px;
+
+            margin-top: 20px;
+
+            border-left: 5px solid #e74c3c;
+        }
+
+
+        /* =========================
+           Footer
+        ========================= */
+
+        footer {
+
+            text-align: center;
+
+            padding: 25px;
+
+            color: #777;
+
+            margin-top: 30px;
+        }
+
+
+        /* =========================================
+           สำหรับมือถือ
+           เปลี่ยนจากแนวนอน → แนวตั้ง
+        ========================================= */
+
+        @media screen and (max-width: 768px) {
+
+            header {
+
+                padding: 15px 5%;
+            }
+
+
+            .logo {
+                font-size: 22px;
+            }
+
+
+            .nav-text {
+                display: none;
+            }
+
+
+            .container {
+
+                width: 92%;
+
+                margin: 25px auto;
+            }
+
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+
+            .hero p {
+                font-size: 16px;
+            }
+
+
+            /* สำคัญ
+               จาก 2 คอลัมน์
+               กลายเป็น 1 คอลัมน์ */
+            .main-grid {
+
+                grid-template-columns: 1fr;
+
+                gap: 20px;
+            }
+
+
+            .card {
+                padding: 20px;
+            }
+
+
+            button {
+                width: 100%;
+                margin: 7px 0;
+            }
+
+
+            #camera {
+                width: 100%;
+            }
+
+        }
+
+
+        /* =========================================
+           มือถือขนาดเล็กมาก
+        ========================================= */
+
+        @media screen and (max-width: 400px) {
+
+            .hero h1 {
+                font-size: 24px;
+            }
+
+
+            .card {
+                padding: 15px;
+            }
+
+
+            .upload-box {
+                padding: 20px 10px;
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-    <h1>🌸 Flower AI</h1>
 
-    <h2>ตรวจจับชนิดดอกไม้</h2>
+<!-- =========================
+     Header
+========================= -->
 
+<header>
 
-    <!-- =========================
-         เลือกรูป / เปิดกล้อง
-         ========================= -->
+    <div class="logo">
+        🌸 Flower AI
+    </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <div class="nav-text">
+        AI Flower Detection
+    </div>
 
-        <p>เลือกรูปดอกไม้:</p>
-
-
-        <!-- =========================
-             เลือกรูปจากเครื่อง
-             ========================= -->
-
-        <input
-            type="file"
-            id="imageInput"
-            name="image"
-            accept="image/*"
-        >
-
-        <br><br>
+</header>
 
 
-        <!-- =========================
-             ปุ่มเปิดกล้อง
-             ========================= -->
 
-        <button type="button" id="openCamera">
-            📷 เปิดกล้อง
-        </button>
+<!-- =========================
+     เนื้อหาหลัก
+========================= -->
 
-        <br><br>
+<div class="container">
 
 
-        <!-- =========================
-             ภาพจากกล้อง
-             ========================= -->
+    <!-- Hero -->
 
-        <video
-            id="camera"
-            width="400"
-            autoplay
-            playsinline
-            style="display:none;"
-        ></video>
+    <section class="hero">
 
-        <br><br>
+        <h1>🌷 ตรวจจับชนิดดอกไม้ด้วย AI</h1>
 
+        <p>
+            อัปโหลดรูปภาพหรือเปิดกล้อง
+            เพื่อให้ AI ช่วยตรวจสอบชนิดของดอกไม้
+        </p>
 
-        <!-- =========================
-             ปุ่มถ่ายรูป
-             ========================= -->
+    </section>
 
-        <button
-            type="button"
-            id="captureButton"
-            style="display:none;"
-        >
-            📸 ถ่ายรูป
-        </button>
-
-
-        <!-- =========================
-             Canvas เก็บภาพ
-             ========================= -->
-
-        <canvas
-            id="canvas"
-            style="display:none;"
-        ></canvas>
-
-
-        <br><br>
-
-
-        <!-- =========================
-             แสดงรูปตัวอย่าง
-             ========================= -->
-
-        <img
-            id="preview"
-            width="400"
-            style="display:none;"
-        >
-
-
-        <br><br>
-
-
-        <!-- =========================
-             ปุ่มส่งไปตรวจจับ
-             ========================= -->
-
-        <button type="submit">
-            🔍 ตรวจจับดอกไม้
-        </button>
-
-    </form>
 
 
     <!-- =========================
-         แสดง Error
-         ========================= -->
+         ส่วนตรวจจับ
+    ========================= -->
 
-    {% if error %}
-
-        <hr>
-
-        <h3>เกิดข้อผิดพลาด</h3>
-
-        <p>{{ error }}</p>
-
-    {% endif %}
+    <div class="main-grid">
 
 
-    <!-- =========================
-         แสดงผลลัพธ์หลายดอก
-         ========================= -->
+        <!-- ฝั่งซ้าย -->
 
-    {% if results %}
+        <div class="card">
 
-        <hr>
-
-        <h2>ผลการตรวจจับ</h2>
+            <h2>📸 เลือกรูปดอกไม้</h2>
 
 
-        <!-- วนแสดงผลทุกดอกที่ AI ตรวจพบ -->
-
-        {% for result in results %}
-
-            <hr>
-
-            <h3>
-                🌸 ดอกไม้ที่ {{ loop.index }}
-            </h3>
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+            >
 
 
-            <p>
-                <b>AI ตรวจพบ:</b>
-                {{ result.class }}
-            </p>
+                <!-- Upload -->
+
+                <div class="upload-box">
+
+                    <p>
+                        เลือกรูปภาพจากเครื่อง
+                    </p>
 
 
-            <p>
-                <b>ความแม่นยำ:</b>
-                {{ result.confidence }} %
-            </p>
+                    <label
+                        for="imageInput"
+                        class="upload-label"
+                    >
+
+                        🖼️ เลือกรูปภาพ
+
+                    </label>
 
 
-            <p>
-                <b>ชื่อภาษาไทย:</b>
-                {{ result.thai }}
-            </p>
+                    <input
+                        type="file"
+                        id="imageInput"
+                        name="image"
+                        accept="image/*"
+                    >
 
 
-            <p>
-                <b>ความหมาย:</b>
-                {{ result.meaning }}
-            </p>
+                    <p id="fileName">
+                        ยังไม่ได้เลือกรูป
+                    </p>
+
+                </div>
 
 
-            <p>
-                <b>โอกาส:</b>
-                {{ result.opportunity }}
-            </p>
+
+                <!-- เปิดกล้อง -->
+
+                <button
+                    type="button"
+                    id="openCamera"
+                >
+
+                    📷 เปิดกล้อง
+
+                </button>
 
 
-        {% endfor %}
 
-    {% endif %}
+                <!-- Video -->
 
-
-    <!-- =========================
-         JavaScript สำหรับกล้อง
-         ========================= -->
-
-    <script>
-
-        // =========================
-        // เรียก Element ต่าง ๆ
-        // =========================
-
-        const imageInput = document.getElementById("imageInput");
-
-        const openCameraButton =
-            document.getElementById("openCamera");
-
-        const captureButton =
-            document.getElementById("captureButton");
-
-        const camera =
-            document.getElementById("camera");
-
-        const canvas =
-            document.getElementById("canvas");
-
-        const preview =
-            document.getElementById("preview");
+                <video
+                    id="camera"
+                    autoplay
+                    playsinline
+                    style="display:none;"
+                >
+                </video>
 
 
-        // เก็บข้อมูลกล้อง
-        let stream = null;
+
+                <!-- ถ่ายรูป -->
+
+                <button
+                    type="button"
+                    id="captureButton"
+                    style="display:none;"
+                >
+
+                    📸 ถ่ายรูป
+
+                </button>
 
 
-        // =========================
-        // เปิดกล้อง
-        // =========================
 
-        openCameraButton.addEventListener(
-            "click",
-            async function () {
+                <!-- Canvas -->
 
-                try {
+                <canvas
+                    id="canvas"
+                    style="display:none;"
+                >
+                </canvas>
 
-                    // ขออนุญาตใช้กล้อง
-                    stream =
-                        await navigator.mediaDevices.getUserMedia({
+
+
+                <!-- Preview -->
+
+                <img
+                    id="preview"
+                    alt="รูปตัวอย่าง"
+                >
+
+
+
+                <!-- ตรวจจับ -->
+
+                <button
+                    type="submit"
+                    class="detect-button"
+                >
+
+                    🔍 ตรวจจับดอกไม้
+
+                </button>
+
+
+            </form>
+
+        </div>
+
+
+
+        <!-- =========================
+             ฝั่งขวา ผลลัพธ์
+        ========================= -->
+
+        <div class="card">
+
+            <h2>🌼 ผลการตรวจจับ</h2>
+
+
+            {% if error %}
+
+                <div class="error-box">
+
+                    <b>เกิดข้อผิดพลาด</b>
+
+                    <p>
+                        {{ error }}
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+
+            <!-- ใช้ results ไม่ใช่ result -->
+
+            {% if results %}
+
+
+                <!-- วนแสดงดอกไม้ทุกดอก -->
+
+                {% for result in results %}
+
+                    <div class="result-card">
+
+
+                        <h3>
+                            🌸 {{ result.thai }}
+                        </h3>
+
+
+                        <div class="result-item">
+
+                            <b>AI ตรวจพบ:</b>
+
+                            {{ result.class }}
+
+                        </div>
+
+
+                        <div class="result-item">
+
+                            <b>ความแม่นยำ:</b>
+
+                            {{ result.confidence }} %
+
+                        </div>
+
+
+                        <div class="result-item">
+
+                            <b>ความหมาย:</b>
+
+                            {{ result.meaning }}
+
+                        </div>
+
+
+                        <div class="result-item">
+
+                            <b>โอกาส:</b>
+
+                            {{ result.opportunity }}
+
+                        </div>
+
+
+                    </div>
+
+                {% endfor %}
+
+
+            {% else %}
+
+                <p style="color:#999;">
+
+                    🌸 ยังไม่มีผลการตรวจจับ<br>
+
+                    เลือกรูปดอกไม้แล้วกด
+                    <b>ตรวจจับดอกไม้</b>
+
+                </p>
+
+            {% endif %}
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     Footer
+========================= -->
+
+<footer>
+
+    🌸 Flower AI | AI Programming Project
+
+</footer>
+
+
+
+<!-- =========================================
+     JavaScript
+========================================= -->
+
+<script>
+
+
+    // =========================
+    // เรียก Element
+    // =========================
+
+    const imageInput =
+        document.getElementById("imageInput");
+
+    const openCameraButton =
+        document.getElementById("openCamera");
+
+    const captureButton =
+        document.getElementById("captureButton");
+
+    const camera =
+        document.getElementById("camera");
+
+    const canvas =
+        document.getElementById("canvas");
+
+    const preview =
+        document.getElementById("preview");
+
+    const fileName =
+        document.getElementById("fileName");
+
+
+    let stream = null;
+
+
+
+    // =========================================
+    // เลือกรูปจากเครื่อง
+    // =========================================
+
+    imageInput.addEventListener(
+        "change",
+        function () {
+
+            if (
+                imageInput.files.length > 0
+            ) {
+
+                const selectedImage =
+                    imageInput.files[0];
+
+
+                // แสดงชื่อไฟล์
+
+                fileName.textContent =
+                    selectedImage.name;
+
+
+                // แสดง Preview
+
+                preview.src =
+                    URL.createObjectURL(
+                        selectedImage
+                    );
+
+
+                preview.style.display =
+                    "block";
+
+
+                // ถ้ากล้องเปิดอยู่ให้ปิด
+
+                if (stream) {
+
+                    stream
+                        .getTracks()
+                        .forEach(
+                            track => track.stop()
+                        );
+
+                    stream = null;
+
+                    camera.style.display =
+                        "none";
+
+                    captureButton.style.display =
+                        "none";
+
+                }
+
+            }
+
+        }
+    );
+
+
+
+    // =========================================
+    // เปิดกล้อง
+    // =========================================
+
+    openCameraButton.addEventListener(
+        "click",
+        async function () {
+
+            try {
+
+
+                // ถ้าเคยเปิดกล้องแล้ว
+                // ให้ปิดก่อน
+
+                if (stream) {
+
+                    stream
+                        .getTracks()
+                        .forEach(
+                            track => track.stop()
+                        );
+
+                }
+
+
+                // เปิดกล้อง
+
+                stream =
+                    await navigator
+                        .mediaDevices
+                        .getUserMedia({
 
                             video: {
-                                facingMode: "environment"
+                                facingMode:
+                                    "environment"
                             },
 
                             audio: false
@@ -240,196 +895,188 @@
                         });
 
 
-                    // ส่งภาพจากกล้องเข้า video
-                    camera.srcObject = stream;
+                // ส่งภาพเข้าวิดีโอ
+
+                camera.srcObject =
+                    stream;
 
 
-                    // แสดงกล้อง
-                    camera.style.display = "block";
+                // แสดงกล้อง
 
-
-                    // แสดงปุ่มถ่ายรูป
-                    captureButton.style.display =
-                        "inline";
-
-
-                }
-
-                catch (error) {
-
-                    alert(
-                        "ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตให้เว็บไซต์ใช้กล้อง"
-                    );
-
-                    console.log(error);
-
-                }
-
-            }
-        );
-
-
-        // =========================
-        // ถ่ายรูป
-        // =========================
-
-        captureButton.addEventListener(
-            "click",
-            function () {
-
-                // กำหนดขนาด Canvas
-                // ตามขนาดภาพจากกล้อง
-
-                canvas.width =
-                    camera.videoWidth;
-
-                canvas.height =
-                    camera.videoHeight;
-
-
-                // สร้างพื้นที่วาดภาพ
-                const context =
-                    canvas.getContext("2d");
-
-
-                // นำภาพจากกล้อง
-                // วาดลง Canvas
-
-                context.drawImage(
-                    camera,
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height
-                );
-
-
-                // =========================
-                // แสดงภาพที่ถ่าย
-                // =========================
-
-                const imageData =
-                    canvas.toDataURL("image/png");
-
-
-                preview.src =
-                    imageData;
-
-                preview.style.display =
+                camera.style.display =
                     "block";
 
 
-                // =========================
-                // แปลง Canvas เป็น File
-                // =========================
+                // แสดงปุ่มถ่าย
 
-                canvas.toBlob(
-                    function (blob) {
-
-                        const file =
-                            new File(
-
-                                [blob],
-
-                                "camera_flower.png",
-
-                                {
-                                    type: "image/png"
-                                }
-
-                            );
+                captureButton.style.display =
+                    "block";
 
 
-                        // สร้าง DataTransfer
-                        const dataTransfer =
-                            new DataTransfer();
+                // ซ่อนรูป Preview เก่า
+
+                preview.style.display =
+                    "none";
 
 
-                        // เพิ่มไฟล์ภาพ
-                        dataTransfer.items.add(
-                            file
-                        );
+                fileName.textContent =
+                    "กำลังใช้กล้อง...";
 
 
-                        // นำไฟล์เข้า input
-                        imageInput.files =
-                            dataTransfer.files;
+            }
 
-                    },
+            catch (error) {
 
+                alert(
+                    "ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตให้เว็บไซต์ใช้กล้อง"
+                );
+
+                console.log(error);
+
+            }
+
+        }
+    );
+
+
+
+    // =========================================
+    // ถ่ายรูป
+    // =========================================
+
+    captureButton.addEventListener(
+        "click",
+        function () {
+
+
+            // ตั้งขนาด Canvas
+
+            canvas.width =
+                camera.videoWidth;
+
+            canvas.height =
+                camera.videoHeight;
+
+
+            const context =
+                canvas.getContext("2d");
+
+
+            // วาดภาพจากกล้อง
+
+            context.drawImage(
+
+                camera,
+
+                0,
+                0,
+
+                canvas.width,
+                canvas.height
+
+            );
+
+
+            // แสดงภาพที่ถ่าย
+
+            const imageData =
+                canvas.toDataURL(
                     "image/png"
-
                 );
 
 
-                // =========================
-                // ปิดกล้องหลังถ่ายรูป
-                // =========================
-
-                if (stream) {
-
-                    stream.getTracks().forEach(
-                        function (track) {
-
-                            track.stop();
-
-                        }
-                    );
+            preview.src =
+                imageData;
 
 
-                    stream = null;
-
-                }
-
-
-                // ซ่อนกล้อง
-                camera.style.display =
-                    "none";
+            preview.style.display =
+                "block";
 
 
-                // ซ่อนปุ่มถ่ายรูป
-                captureButton.style.display =
-                    "none";
+            // =====================================
+            // เปลี่ยนรูปจาก Canvas เป็น File
+            // เพื่อส่งไป Flask
+            // =====================================
 
-            }
-        );
+            canvas.toBlob(
 
-
-        // =========================
-        // เลือกรูปจากเครื่อง
-        // =========================
-
-        imageInput.addEventListener(
-            "change",
-            function () {
-
-                if (
-                    imageInput.files.length > 0
-                ) {
-
-                    const selectedImage =
-                        imageInput.files[0];
+                function (blob) {
 
 
-                    // แสดงรูปตัวอย่าง
+                    const file =
+                        new File(
 
-                    preview.src =
-                        URL.createObjectURL(
-                            selectedImage
+                            [blob],
+
+                            "camera_flower.png",
+
+                            {
+                                type:
+                                    "image/png"
+                            }
+
                         );
 
 
-                    preview.style.display =
-                        "block";
+                    const dataTransfer =
+                        new DataTransfer();
 
-                }
+
+                    dataTransfer.items.add(
+                        file
+                    );
+
+
+                    // ใส่รูปลง input
+
+                    imageInput.files =
+                        dataTransfer.files;
+
+
+                    fileName.textContent =
+                        "📷 ถ่ายรูปเรียบร้อย";
+
+
+                },
+
+                "image/png"
+
+            );
+
+
+
+            // =====================================
+            // ปิดกล้อง
+            // =====================================
+
+            if (stream) {
+
+                stream
+                    .getTracks()
+                    .forEach(
+                        track => track.stop()
+                    );
+
+
+                stream = null;
 
             }
-        );
 
-    </script>
+
+            camera.style.display =
+                "none";
+
+
+            captureButton.style.display =
+                "none";
+
+
+        }
+    );
+
+
+</script>
 
 
 </body>
-
 </html>
