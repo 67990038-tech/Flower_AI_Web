@@ -4,21 +4,29 @@
 
 from flask import Flask, render_template, request
 import requests
+import base64
 import os
 
 
 # ==========================================
-# 2. ตั้งค่า Flask และ API
+# 2. ตั้งค่า Flask
 # ==========================================
 
 app = Flask(__name__)
 
-# ดึง API_URL จาก Environment Variable ของ Render
+
+# ==========================================
+# 3. Roboflow API
+# ==========================================
+
+# ใช้ Environment Variable
+# ใน Render จะต้องสร้าง API_URL ไว้
+
 API_URL = os.environ.get("API_URL")
 
 
 # ==========================================
-# 3. ข้อมูลดอกไม้
+# 4. ข้อมูลดอกไม้
 # ==========================================
 
 flowers = {
@@ -32,7 +40,7 @@ flowers = {
     "carnation": {
         "thai": "คาร์เนชั่น",
         "meaning": "ความรัก ความนอบน้อม กตัญญูรู้คุณ และรักนิรันดร์",
-        "opportunity": "วันแม่ งานมงคลต่าง ๆ เช่น งานรับปริญญา งานแต่งงาน และงานขึ้นบ้านใหม่"
+        "opportunity": "วันแม่ งานมงคลต่าง ๆ เช่น งานรับปริญญา งานแต่งงาน งานขึ้นบ้านใหม่"
     },
 
     "daisy": {
@@ -50,7 +58,7 @@ flowers = {
     "gardenia": {
         "thai": "พุด",
         "meaning": "ความเจริญรุ่งเรืองและความมั่นคงของชีวิต",
-        "opportunity": "บูชาพระเพื่อเสริมสิริมงคลและความมั่งคั่งในครอบครัว หรืองานแต่งงาน"
+        "opportunity": "บูชาพระเพื่อเสริมสิริมงคล งานฉลอง และงานแต่งงาน"
     },
 
     "hibiscus": {
@@ -68,19 +76,19 @@ flowers = {
     "lily": {
         "thai": "ลิลลี่",
         "meaning": "ความบริสุทธิ์ ความรัก ความหวัง และการจากลา",
-        "opportunity": "งานแต่งงาน งานไว้อาลัย ของขวัญวันเกิดหรือวันครบรอบ และการตกแต่งสถานที่"
+        "opportunity": "งานแต่งงาน งานศพ ของขวัญวันเกิด วันครบรอบ และตกแต่งสถานที่"
     },
 
     "lotus": {
         "thai": "บัว",
-        "meaning": "ความบริสุทธิ์ ความสำเร็จ และปัญญาในพระพุทธศาสนา",
-        "opportunity": "พิธีกรรมทางศาสนา การบูชาพระ การตกแต่งสถานที่ และวัฒนธรรมไทย"
+        "meaning": "ความบริสุทธิ์ ความสำเร็จ และปัญญา",
+        "opportunity": "พิธีกรรมทางศาสนา การบูชาพระ วัฒนธรรมไทย การตกแต่งสถานที่"
     },
 
     "orchids": {
         "thai": "กล้วยไม้",
         "meaning": "ความมั่งคั่ง ความสง่างาม และความรักที่มั่นคง",
-        "opportunity": "แสดงความยินดีในโอกาสสำคัญ ให้เป็นของขวัญ แสดงความเคารพ หรือมอบให้ผู้ที่ชื่นชม"
+        "opportunity": "แสดงความยินดี ให้เป็นของขวัญ แสดงความเคารพต่อผู้ใหญ่ หรือบุคคลที่ชื่นชม"
     },
 
     "peony": {
@@ -92,13 +100,13 @@ flowers = {
     "pinkrose": {
         "thai": "กุหลาบสีชมพู",
         "meaning": "ความสง่างาม ความอ่อนโยน และความรักโรแมนติก",
-        "opportunity": "วันวาเลนไทน์ วันเกิด วันครบรอบ วันแม่ หรือมอบเพื่อแสดงความยินดีและขอบคุณ"
+        "opportunity": "วันเกิด วันครบรอบ วันแม่ หรือมอบเพื่อแสดงความยินดีและขอบคุณ"
     },
 
     "redrose": {
         "thai": "กุหลาบแดง",
-        "meaning": "การตกหลุมรัก ความรัก และความหลงใหล",
-        "opportunity": "วันวาเลนไทน์ วันครบรอบความสัมพันธ์ การขอแต่งงาน หรือโอกาสที่ต้องการบอกรัก"
+        "meaning": "การตกหลุมรักหรือปลื้มใครซักคน",
+        "opportunity": "วันวาเลนไทน์ วันครบรอบ การขอแต่งงาน หรือการบอกรัก"
     },
 
     "whiterose": {
@@ -110,7 +118,7 @@ flowers = {
     "sunflower": {
         "thai": "ทานตะวัน",
         "meaning": "ความสดใส ความหวัง และความมั่นคง",
-        "opportunity": "แสดงความยินดีในความสำเร็จ ให้กำลังใจ วันเกิด วันครบรอบ หรือมอบให้คนพิเศษ"
+        "opportunity": "แสดงความยินดี ให้กำลังใจ วันเกิด วันครบรอบ หรือสารภาพรัก"
     },
 
     "tulip": {
@@ -122,7 +130,7 @@ flowers = {
 
 
 # ==========================================
-# 4. หน้าเว็บไซต์
+# 5. หน้าเว็บไซต์
 # ==========================================
 
 @app.route("/", methods=["GET", "POST"])
@@ -130,139 +138,322 @@ def home():
 
     results = None
     error = None
+    image_base64 = None
 
-    # ----------------------------------
-    # ทำงานเมื่อกดปุ่มตรวจจับ
-    # ----------------------------------
+    # --------------------------------------
+    # เมื่อผู้ใช้กดตรวจจับ
+    # --------------------------------------
 
     if request.method == "POST":
 
-        # ตรวจสอบว่ามีไฟล์รูปส่งมาหรือไม่
+        # ----------------------------------
+        # ตรวจสอบว่ามี image หรือไม่
+        # ----------------------------------
+
         if "image" not in request.files:
 
             error = "ไม่พบรูปภาพ"
 
-        else:
+            return render_template(
+                "index.html",
+                results=None,
+                error=error,
+                image_base64=None
+            )
 
-            image = request.files["image"]
+        image = request.files["image"]
 
-            # ตรวจสอบว่าเลือกรูปหรือไม่
-            if image.filename == "":
 
-                error = "กรุณาเลือกรูปภาพ"
+        # ----------------------------------
+        # ตรวจสอบชื่อไฟล์
+        # ----------------------------------
 
-            # ตรวจสอบ API_URL
-            elif not API_URL:
+        if image.filename == "":
 
-                error = "ไม่พบ API_URL กรุณาตั้งค่า API_URL ใน Render"
+            error = "กรุณาเลือกรูปภาพ"
 
-            else:
+            return render_template(
+                "index.html",
+                results=None,
+                error=error,
+                image_base64=None
+            )
 
-                try:
 
-                    # ----------------------------------
-                    # ส่งรูปไป Roboflow
-                    # ----------------------------------
+        # ----------------------------------
+        # ตรวจสอบ API_URL
+        # ----------------------------------
 
-                    response = requests.post(
-                        API_URL,
-                        files={
-                            "file": (
-                                image.filename,
-                                image.read(),
-                                image.content_type
-                            )
-                        }
+        if not API_URL:
+
+            error = (
+                "ไม่พบ API_URL "
+                "กรุณาตั้งค่า API_URL ใน Render "
+                "หรือในเครื่องของคุณ"
+            )
+
+            return render_template(
+                "index.html",
+                results=None,
+                error=error,
+                image_base64=None
+            )
+
+
+        try:
+
+            # ----------------------------------
+            # อ่านไฟล์รูป
+            # ----------------------------------
+
+            image_data = image.read()
+
+
+            # ----------------------------------
+            # แปลงรูปเป็น Base64
+            # เพื่อแสดงรูปเดิมหลังตรวจจับ
+            # ----------------------------------
+
+            image_base64 = base64.b64encode(
+                image_data
+            ).decode("utf-8")
+
+
+            # ----------------------------------
+            # ส่งรูปไป Roboflow
+            # ----------------------------------
+
+            response = requests.post(
+
+                API_URL,
+
+                files={
+                    "file": (
+                        image.filename,
+                        image_data,
+                        image.content_type
                     )
+                },
 
-                    # แสดงข้อมูลใน Logs
-                    print("Roboflow Status Code:", response.status_code)
-                    print("Roboflow Response:", response.text)
-
-
-                    # ----------------------------------
-                    # ตรวจสอบการตอบกลับจาก Roboflow
-                    # ----------------------------------
-
-                    if response.status_code != 200:
-
-                        error = (
-                            f"Roboflow Error {response.status_code}: "
-                            f"{response.text}"
-                        )
-
-                    else:
-
-                        # แปลงข้อมูลเป็น JSON
-                        data = response.json()
+                timeout=60
+            )
 
 
-                        # ----------------------------------
-                        # ตรวจสอบว่าพบดอกไม้หรือไม่
-                        # ----------------------------------
+            # ----------------------------------
+            # แสดงข้อมูลใน Render Logs
+            # ----------------------------------
 
-                        if (
-                            "predictions" not in data
-                            or len(data["predictions"]) == 0
-                        ):
+            print(
+                "Roboflow Status:",
+                response.status_code
+            )
 
-                            error = "ไม่พบดอกไม้ที่ AI รู้จักในรูปภาพ"
-
-                        else:
-
-                            # สร้างรายการเก็บผลทุกดอก
-                            results = []
+            print(
+                "Roboflow Response:",
+                response.text
+            )
 
 
-                            # ----------------------------------
-                            # วนลูปดอกไม้ทุกดอกที่ AI ตรวจพบ
-                            # ----------------------------------
+            # ----------------------------------
+            # ตรวจสอบ Response
+            # ----------------------------------
 
-                            for prediction in data["predictions"]:
+            if response.status_code != 200:
 
-                                flower_name = prediction["class"]
+                error = (
+                    f"Roboflow Error "
+                    f"{response.status_code}: "
+                    f"{response.text}"
+                )
 
-                                confidence = round(
-                                    prediction["confidence"] * 100,
-                                    2
-                                )
-
-
-                                # ถ้ามีข้อมูลดอกไม้นี้
-                                if flower_name in flowers:
-
-                                    info = flowers[flower_name]
-
-                                    results.append({
-                                        "class": flower_name,
-                                        "confidence": confidence,
-                                        "thai": info["thai"],
-                                        "meaning": info["meaning"],
-                                        "opportunity": info["opportunity"]
-                                    })
+                return render_template(
+                    "index.html",
+                    results=None,
+                    error=error,
+                    image_base64=image_base64
+                )
 
 
-                                # ถ้า AI รู้จัก แต่เราไม่มีข้อมูลใน flowers
-                                else:
+            # ----------------------------------
+            # แปลงเป็น JSON
+            # ----------------------------------
 
-                                    results.append({
-                                        "class": flower_name,
-                                        "confidence": confidence,
-                                        "thai": "ยังไม่มีข้อมูล",
-                                        "meaning": "ยังไม่มีข้อมูล",
-                                        "opportunity": "ยังไม่มีข้อมูล"
-                                    })
+            data = response.json()
 
 
-                # ----------------------------------
-                # ถ้าเกิด Error
-                # ----------------------------------
+            # ----------------------------------
+            # ตรวจสอบ predictions
+            # ----------------------------------
 
-                except Exception as e:
+            predictions = data.get(
+                "predictions",
+                []
+            )
 
-                    print("Error:", str(e))
 
-                    error = f"เกิดข้อผิดพลาด: {str(e)}"
+            if len(predictions) == 0:
+
+                error = (
+                    "ไม่พบดอกไม้ที่ AI รู้จัก "
+                    "ในรูปภาพ"
+                )
+
+                return render_template(
+                    "index.html",
+                    results=None,
+                    error=error,
+                    image_base64=image_base64
+                )
+
+
+            # ==================================
+            # เก็บผลการตรวจจับทุกดอก
+            # ==================================
+
+            results = []
+
+
+            for prediction in predictions:
+
+                # ------------------------------
+                # ชื่อดอกไม้
+                # ------------------------------
+
+                flower_name = prediction.get(
+                    "class",
+                    "unknown"
+                )
+
+
+                # ------------------------------
+                # Confidence
+                # ------------------------------
+
+                confidence = round(
+                    prediction.get(
+                        "confidence",
+                        0
+                    ) * 100,
+                    2
+                )
+
+
+                # ------------------------------
+                # ตำแหน่งกรอบ
+                # Roboflow ส่งเป็น center x,y
+                # ------------------------------
+
+                x = prediction.get("x", 0)
+                y = prediction.get("y", 0)
+
+                width = prediction.get(
+                    "width",
+                    0
+                )
+
+                height = prediction.get(
+                    "height",
+                    0
+                )
+
+
+                # ------------------------------
+                # ถ้ามีข้อมูลดอกไม้
+                # ------------------------------
+
+                if flower_name in flowers:
+
+                    info = flowers[flower_name]
+
+                    results.append({
+
+                        "class": flower_name,
+
+                        "confidence": confidence,
+
+                        "thai": info["thai"],
+
+                        "meaning": info["meaning"],
+
+                        "opportunity": info["opportunity"],
+
+                        "x": x,
+
+                        "y": y,
+
+                        "width": width,
+
+                        "height": height
+
+                    })
+
+
+                # ------------------------------
+                # ถ้ายังไม่มีข้อมูลดอกไม้
+                # ------------------------------
+
+                else:
+
+                    results.append({
+
+                        "class": flower_name,
+
+                        "confidence": confidence,
+
+                        "thai": "ยังไม่มีข้อมูล",
+
+                        "meaning": "ยังไม่มีข้อมูล",
+
+                        "opportunity": "ยังไม่มีข้อมูล",
+
+                        "x": x,
+
+                        "y": y,
+
+                        "width": width,
+
+                        "height": height
+
+                    })
+
+
+        except requests.exceptions.RequestException as e:
+
+            print(
+                "Request Error:",
+                str(e)
+            )
+
+            error = (
+                "ไม่สามารถเชื่อมต่อ Roboflow ได้: "
+                + str(e)
+            )
+
+
+        except ValueError as e:
+
+            print(
+                "JSON Error:",
+                str(e)
+            )
+
+            error = (
+                "Roboflow ส่งข้อมูลกลับมาไม่ถูกต้อง: "
+                + str(e)
+            )
+
+
+        except Exception as e:
+
+            print(
+                "Error:",
+                str(e)
+            )
+
+            error = (
+                "เกิดข้อผิดพลาด: "
+                + str(e)
+            )
 
 
     # ==========================================
@@ -270,15 +461,33 @@ def home():
     # ==========================================
 
     return render_template(
+
         "index.html",
+
         results=results,
-        error=error
+
+        error=error,
+
+        image_base64=image_base64
+
     )
 
 
 # ==========================================
-# 5. เริ่มเว็บ
+# 6. เริ่ม Flask
 # ==========================================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+
+    port = int(
+        os.environ.get(
+            "PORT",
+            5000
+        )
+    )
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=True
+    )
