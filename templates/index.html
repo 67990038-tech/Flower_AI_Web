@@ -13,20 +13,12 @@
 
     <style>
 
-        /* =========================================
-           RESET
-           ========================================= */
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-
-        /* =========================================
-           BODY
-           ========================================= */
 
         body {
 
@@ -70,9 +62,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            HEADER
-           ========================================= */
+           ================================ */
 
         .header {
 
@@ -147,9 +139,9 @@
         }
 
 
-        /* =========================================
-           MAIN CONTAINER
-           ========================================= */
+        /* ================================
+           MAIN
+           ================================ */
 
         .container {
 
@@ -160,10 +152,6 @@
             margin: 35px auto 60px;
         }
 
-
-        /* =========================================
-           GRID
-           ========================================= */
 
         .main-grid {
 
@@ -176,9 +164,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            CARD
-           ========================================= */
+           ================================ */
 
         .card {
 
@@ -240,9 +228,9 @@
         }
 
 
-        /* =========================================
-           UPLOAD AREA
-           ========================================= */
+        /* ================================
+           UPLOAD
+           ================================ */
 
         .upload-box {
 
@@ -291,10 +279,6 @@
         }
 
 
-        /* =========================================
-           FILE INPUT
-           ========================================= */
-
         input[type="file"] {
 
             width: 100%;
@@ -314,9 +298,9 @@
         }
 
 
-        /* =========================================
-           BUTTONS
-           ========================================= */
+        /* ================================
+           BUTTON
+           ================================ */
 
         button {
 
@@ -342,7 +326,6 @@
         button:hover {
 
             transform: translateY(-2px);
-
         }
 
 
@@ -408,9 +391,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            CAMERA
-           ========================================= */
+           ================================ */
 
         .camera-container {
 
@@ -444,9 +427,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            PREVIEW
-           ========================================= */
+           ================================ */
 
         .preview-title {
 
@@ -481,9 +464,63 @@
         }
 
 
-        /* =========================================
-           RESULT
-           ========================================= */
+        /* ================================
+           DETECTION IMAGE
+           ================================ */
+
+        .detection-container {
+
+            position: relative;
+
+            width: 100%;
+
+            max-width: 600px;
+
+            margin: 15px auto 25px;
+
+            border-radius: 16px;
+
+            overflow: hidden;
+
+            background: #f5f2fb;
+
+            box-shadow:
+                0 8px 25px
+                rgba(100, 90, 150, 0.12);
+        }
+
+
+        .detection-container img {
+
+            display: block;
+
+            width: 100%;
+
+            height: auto;
+
+            border-radius: 16px;
+        }
+
+
+        .detection-container canvas {
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            pointer-events: none;
+        }
+
+
+        /* ================================
+           RESULT EMPTY
+           ================================ */
 
         .result-empty {
 
@@ -511,9 +548,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            FLOWER RESULT
-           ========================================= */
+           ================================ */
 
         .flower-result {
 
@@ -568,9 +605,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            CONFIDENCE
-           ========================================= */
+           ================================ */
 
         .confidence {
 
@@ -600,9 +637,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            INFO
-           ========================================= */
+           ================================ */
 
         .info-box {
 
@@ -635,9 +672,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            ERROR
-           ========================================= */
+           ================================ */
 
         .error {
 
@@ -667,9 +704,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            FOOTER
-           ========================================= */
+           ================================ */
 
         .footer {
 
@@ -683,9 +720,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            TABLET
-           ========================================= */
+           ================================ */
 
         @media (max-width: 850px) {
 
@@ -702,9 +739,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            MOBILE
-           ========================================= */
+           ================================ */
 
         @media (max-width: 600px) {
 
@@ -763,9 +800,9 @@
         }
 
 
-        /* =========================================
+        /* ================================
            SMALL MOBILE
-           ========================================= */
+           ================================ */
 
         @media (max-width: 400px) {
 
@@ -818,6 +855,7 @@
     </p>
 
 </header>
+
 
 
 <!-- =========================================
@@ -875,6 +913,7 @@
                 </div>
 
 
+
                 <!-- Camera -->
 
                 <button
@@ -886,6 +925,7 @@
                     📷 เปิดกล้อง
 
                 </button>
+
 
 
                 <div
@@ -916,12 +956,14 @@
                 </div>
 
 
+
                 <!-- Canvas -->
 
                 <canvas
                     id="canvas"
                     style="display:none;"
                 ></canvas>
+
 
 
                 <!-- Preview -->
@@ -942,6 +984,7 @@
                     style="display:none;"
                     alt="Flower Preview"
                 >
+
 
 
                 <!-- Detect -->
@@ -978,8 +1021,37 @@
             </h2>
 
 
+
             {% if results %}
 
+
+                <!-- =================================
+                     DETECTION IMAGE + BOUNDING BOX
+                     ================================= -->
+
+                {% if image_url %}
+
+                <div class="detection-container">
+
+                    <img
+                        id="detectionImage"
+                        src="{{ image_url }}"
+                        alt="Detected Flower"
+                    >
+
+                    <canvas
+                        id="detectionCanvas"
+                    ></canvas>
+
+                </div>
+
+                {% endif %}
+
+
+
+                <!-- =================================
+                     RESULT INFORMATION
+                     ================================= -->
 
                 {% for result in results %}
 
@@ -997,6 +1069,7 @@
                         <div class="ai-class">
 
                             AI Class:
+
                             <b>
                                 {{ result.class }}
                             </b>
@@ -1018,11 +1091,15 @@
                         <div class="info-box">
 
                             <div class="info-title">
+
                                 💗 ความหมาย
+
                             </div>
 
                             <div class="info-text">
+
                                 {{ result.meaning }}
+
                             </div>
 
                         </div>
@@ -1031,11 +1108,15 @@
                         <div class="info-box">
 
                             <div class="info-title">
+
                                 🎁 โอกาสในการมอบ
+
                             </div>
 
                             <div class="info-text">
+
                                 {{ result.opportunity }}
+
                             </div>
 
                         </div>
@@ -1053,16 +1134,24 @@
                 <div class="result-empty">
 
                     <div class="big-icon">
+
                         🌼
+
                     </div>
 
+
                     <h3>
+
                         ยังไม่มีผลการตรวจจับ
+
                     </h3>
 
+
                     <p>
+
                         เลือกรูปหรือเปิดกล้อง
                         แล้วกดปุ่มตรวจจับดอกไม้
+
                     </p>
 
                 </div>
@@ -1077,6 +1166,7 @@
     </div>
 
 
+
     <!-- =========================================
          ERROR
          ========================================= -->
@@ -1086,16 +1176,21 @@
         <div class="error">
 
             <h3>
+
                 ⚠️ เกิดข้อผิดพลาด
+
             </h3>
 
             <p>
+
                 {{ error }}
+
             </p>
 
         </div>
 
     {% endif %}
+
 
 
     <div class="footer">
@@ -1254,9 +1349,8 @@ captureButton.addEventListener(
             "block";
 
 
-        /* -----------------------------
-           Convert Canvas → File
-           ----------------------------- */
+
+        /* Convert Canvas → File */
 
         canvas.toBlob(
 
@@ -1298,9 +1392,8 @@ captureButton.addEventListener(
         );
 
 
-        /* -----------------------------
-           Stop Camera
-           ----------------------------- */
+
+        /* Stop Camera */
 
         if (stream) {
 
@@ -1366,6 +1459,281 @@ imageInput.addEventListener(
 
     }
 );
+
+
+
+/* =========================================
+   BOUNDING BOX
+   ========================================= */
+
+const detectionImage =
+    document.getElementById(
+        "detectionImage"
+    );
+
+const detectionCanvas =
+    document.getElementById(
+        "detectionCanvas"
+    );
+
+
+{% if results and image_url %}
+
+const results =
+    {{ results | tojson }};
+
+
+
+function drawBoundingBoxes() {
+
+    if (
+        !detectionImage ||
+        !detectionCanvas
+    ) {
+
+        return;
+
+    }
+
+
+    const rect =
+        detectionImage.getBoundingClientRect();
+
+
+    detectionCanvas.width =
+        detectionImage.naturalWidth;
+
+
+    detectionCanvas.height =
+        detectionImage.naturalHeight;
+
+
+    const ctx =
+        detectionCanvas.getContext("2d");
+
+
+    ctx.clearRect(
+        0,
+        0,
+        detectionCanvas.width,
+        detectionCanvas.height
+    );
+
+
+    results.forEach(
+        function(result) {
+
+
+            /*
+             * Roboflow normally gives:
+             *
+             * x
+             * y
+             * width
+             * height
+             */
+
+
+            let x =
+                Number(result.x);
+
+
+            let y =
+                Number(result.y);
+
+
+            let width =
+                Number(result.width);
+
+
+            let height =
+                Number(result.height);
+
+
+            /*
+             * Support nested box format
+             */
+
+            if (
+                result.box
+            ) {
+
+                x =
+                    Number(result.box.x);
+
+                y =
+                    Number(result.box.y);
+
+                width =
+                    Number(result.box.width);
+
+                height =
+                    Number(result.box.height);
+
+            }
+
+
+            if (
+                !isFinite(x) ||
+                !isFinite(y) ||
+                !isFinite(width) ||
+                !isFinite(height)
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+             * Roboflow x,y = center point
+             */
+
+            const left =
+                x - width / 2;
+
+            const top =
+                y - height / 2;
+
+
+            /*
+             * Bounding Box
+             */
+
+            ctx.lineWidth = 5;
+
+            ctx.strokeStyle =
+                "#8b5cf6";
+
+            ctx.strokeRect(
+
+                left,
+
+                top,
+
+                width,
+
+                height
+
+            );
+
+
+            /*
+             * Label
+             */
+
+            const className =
+                result.class ||
+                result.thai ||
+                "Flower";
+
+
+            const confidence =
+                result.confidence !== undefined
+                    ? Math.round(
+                        Number(
+                            result.confidence
+                        )
+                    ) + "%"
+                    : "";
+
+
+            const label =
+                className +
+                " " +
+                confidence;
+
+
+            ctx.font =
+                "bold 18px Arial";
+
+
+            const textWidth =
+                ctx.measureText(
+                    label
+                ).width;
+
+
+            const labelHeight =
+                28;
+
+
+            ctx.fillStyle =
+                "#8b5cf6";
+
+
+            ctx.fillRect(
+
+                left,
+
+                Math.max(
+                    0,
+                    top - labelHeight
+                ),
+
+                textWidth + 16,
+
+                labelHeight
+
+            );
+
+
+            ctx.fillStyle =
+                "#ffffff";
+
+
+            ctx.fillText(
+
+                label,
+
+                left + 8,
+
+                Math.max(
+                    20,
+                    top - 8
+                )
+
+            );
+
+        }
+    );
+
+}
+
+
+/*
+ * Draw after image loads
+ */
+
+detectionImage.addEventListener(
+    "load",
+    drawBoundingBoxes
+);
+
+
+/*
+ * Draw immediately if already loaded
+ */
+
+if (
+    detectionImage.complete
+) {
+
+    drawBoundingBoxes();
+
+}
+
+
+/*
+ * Redraw when screen size changes
+ */
+
+window.addEventListener(
+    "resize",
+    drawBoundingBoxes
+);
+
+{% endif %}
 
 
 </script>
