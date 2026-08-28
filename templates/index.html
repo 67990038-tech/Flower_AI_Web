@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="th">
 
 <head>
@@ -16,11 +15,6 @@
 
     <style>
 
-
-        /* ==========================================
-           พื้นฐาน
-           ========================================== */
-
         * {
             box-sizing: border-box;
         }
@@ -35,91 +29,69 @@
                 "Noto Sans Thai",
                 sans-serif;
 
-            background: #fff8f3;
+            background: #fff8f4;
 
             color: #333;
-
         }
 
 
-        /* ==========================================
+        /* =================================
            Container
-           ========================================== */
+           ================================= */
 
         .container {
 
-            width: 100%;
-
-            max-width: 1200px;
+            width: min(1200px, 92%);
 
             margin: auto;
 
-            padding: 30px 20px;
-
+            padding: 30px 0;
         }
 
 
-        /* ==========================================
+        /* =================================
            Header
-           ========================================== */
+           ================================= */
 
-        header {
+        .header {
 
-            display: flex;
+            text-align: center;
 
-            align-items: center;
-
-            gap: 15px;
-
-            margin-bottom: 25px;
-
+            margin-bottom: 30px;
         }
 
 
-        .logo {
+        .header h1 {
 
-            font-size: 55px;
+            margin-bottom: 8px;
 
+            color: #d94f70;
         }
 
 
-        header h1 {
-
-            margin: 0;
-
-            font-size: 40px;
-
-        }
-
-
-        header p {
-
-            margin: 5px 0 0;
+        .header p {
 
             color: #777;
-
         }
 
 
-        /* ==========================================
+        /* =================================
            Main Grid
-           ========================================== */
+           ================================= */
 
         .main-grid {
 
             display: grid;
 
-            grid-template-columns:
-                1fr 1fr;
+            grid-template-columns: 1fr 1fr;
 
             gap: 25px;
-
         }
 
 
-        /* ==========================================
+        /* =================================
            Card
-           ========================================== */
+           ================================= */
 
         .card {
 
@@ -129,12 +101,9 @@
 
             padding: 25px;
 
-            margin-bottom: 25px;
-
             box-shadow:
-                0 5px 20px
-                rgba(0, 0, 0, 0.08);
-
+                0 8px 25px
+                rgba(0,0,0,0.08);
         }
 
 
@@ -142,515 +111,258 @@
 
             margin-top: 0;
 
+            color: #d94f70;
         }
 
 
-        /* ==========================================
+        /* =================================
            Upload
-           ========================================== */
+           ================================= */
 
         .upload-box {
 
-            display: block;
-
-            border:
-                2px dashed #e5a6b6;
+            border: 2px dashed #e7a2b2;
 
             border-radius: 15px;
 
             padding: 25px;
 
             text-align: center;
-
-            cursor: pointer;
-
-            margin-bottom: 15px;
-
         }
 
 
-        .upload-box span {
+        input[type="file"] {
 
-            display: block;
+            width: 100%;
 
-            font-size: 18px;
-
-            margin-bottom: 10px;
-
+            margin-bottom: 20px;
         }
 
-
-        .upload-box input {
-
-            max-width: 100%;
-
-        }
-
-
-        /* ==========================================
-           Buttons
-           ========================================== */
 
         button {
 
             border: none;
 
-            border-radius: 12px;
+            border-radius: 10px;
 
-            padding: 13px 20px;
-
-            font-size: 16px;
-
-            cursor: pointer;
+            padding: 12px 20px;
 
             margin: 5px;
 
+            cursor: pointer;
+
+            font-size: 16px;
         }
 
 
-        .camera-button {
+        .camera-btn {
 
-            background: #f3d4dc;
+            background: #555;
 
+            color: white;
         }
 
 
-        .capture-button {
+        .capture-btn {
 
-            background: #ffd166;
+            background: #d94f70;
 
-            display: none;
-
+            color: white;
         }
 
 
-        .detect-button {
+        .detect-btn {
 
-            background: #d85b78;
+            background: #6c4bd8;
 
             color: white;
 
             width: 100%;
 
             margin-top: 20px;
-
         }
 
 
-        /* ==========================================
+        /* =================================
            Camera
-           ========================================== */
+           ================================= */
 
         #camera {
 
             width: 100%;
 
-            max-width: 700px;
+            max-width: 500px;
 
             border-radius: 15px;
 
-            display: none;
-
-            margin: 20px auto;
-
+            margin-top: 15px;
         }
 
 
-        /* ==========================================
-           Canvas
-           ========================================== */
-
-        #canvas {
-
-            display: none;
-
-        }
-
-
-        /* ==========================================
+        /* =================================
            Preview
-           ========================================== */
+           ================================= */
 
-        .preview-box {
-
-            width: 100%;
-
-            text-align: center;
-
-            margin-top: 20px;
-
-        }
-
-
-        #preview {
-
-            display: none;
-
-            max-width: 100%;
-
-            max-height: 500px;
-
-            object-fit: contain;
-
-            border-radius: 15px;
-
-        }
-
-
-        /* ==========================================
-           Detection Image
-           ========================================== */
-
-        .result-image {
+        .image-area {
 
             position: relative;
 
             width: 100%;
 
-            text-align: center;
-
-            overflow: hidden;
-
-        }
-
-
-        .result-image img {
-
-            max-width: 100%;
-
-            max-height: 600px;
-
-            width: auto;
-
-            height: auto;
-
-            display: block;
+            max-width: 700px;
 
             margin: auto;
-
-            border-radius: 15px;
-
         }
 
 
-        /* ==========================================
-           Bounding Box Container
-           ========================================== */
-
-        #boxes {
-
-            position: absolute;
-
-            top: 0;
-
-            left: 0;
+        #preview {
 
             width: 100%;
 
-            height: 100%;
+            display: block;
+
+            border-radius: 15px;
+        }
+
+
+        /* =================================
+           Bounding Box
+           ================================= */
+
+        .box {
+
+            position: absolute;
+
+            border: 3px solid #ff2f68;
 
             pointer-events: none;
-
         }
 
 
-        /* ==========================================
-           Bounding Box
-           ========================================== */
-
-        .bounding-box {
+        .label {
 
             position: absolute;
 
-            border:
-                3px solid #ff3b6b;
+            left: 0;
 
-            box-sizing: border-box;
+            top: -28px;
 
-        }
-
-
-        /* ==========================================
-           Bounding Label
-           ========================================== */
-
-        .bounding-label {
-
-            position: absolute;
-
-            top: -30px;
-
-            left: -3px;
-
-            background: #ff3b6b;
+            background: #ff2f68;
 
             color: white;
 
-            padding: 5px 8px;
+            padding: 4px 8px;
+
+            border-radius: 5px;
 
             font-size: 14px;
 
-            font-weight: bold;
-
-            border-radius:
-                5px 5px 0 0;
-
             white-space: nowrap;
-
         }
 
 
-        /* ==========================================
+        /* =================================
            Results
-           ========================================== */
+           ================================= */
 
-        .results-container {
+        .result-card {
 
-            display: grid;
+            margin-top: 20px;
 
-            grid-template-columns:
-                1fr 1fr;
-
-            gap: 15px;
-
-        }
-
-
-        .flower-result {
-
-            display: flex;
-
-            gap: 15px;
-
-            background: #fff8fa;
+            padding: 18px;
 
             border-radius: 15px;
 
-            padding: 20px;
+            background: #fff3f6;
 
-            border:
-                1px solid #f1d6dd;
-
+            border-left: 5px solid #d94f70;
         }
 
 
-        .flower-number {
+        .confidence {
 
-            min-width: 40px;
-
-            height: 40px;
-
-            border-radius: 50%;
-
-            background: #d85b78;
-
-            color: white;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
+            font-size: 18px;
 
             font-weight: bold;
 
+            color: #6c4bd8;
         }
 
 
-        .flower-info {
-
-            flex: 1;
-
-        }
-
-
-        .flower-info h3 {
-
-            margin-top: 0;
-
-        }
-
-
-        /* ==========================================
+        /* =================================
            Error
-           ========================================== */
+           ================================= */
 
-        .error-box {
+        .error {
 
-            background: #fff0f0;
+            background: #ffe5e5;
 
-            border:
-                1px solid #ffaaaa;
+            color: #b00020;
 
-            color: #b00000;
+            padding: 15px;
 
-            border-radius: 15px;
+            border-radius: 10px;
 
-            padding: 20px;
-
-            margin-bottom: 20px;
-
+            margin-top: 20px;
         }
 
 
-        /* ==========================================
-           Footer
-           ========================================== */
+        /* =================================
+           Mobile
+           ================================= */
 
-        footer {
-
-            text-align: center;
-
-            color: #888;
-
-            padding: 30px 0;
-
-        }
-
-
-        /* ==========================================
-           Tablet
-           ========================================== */
-
-        @media (max-width: 800px) {
-
+        @media (max-width: 768px) {
 
             .container {
 
-                padding:
-                    20px 15px;
+                width: 94%;
 
-            }
-
-
-            header h1 {
-
-                font-size: 30px;
-
+                padding: 20px 0;
             }
 
 
             .main-grid {
 
-                grid-template-columns:
-                    1fr;
+                grid-template-columns: 1fr;
 
-            }
-
-
-            .results-container {
-
-                grid-template-columns:
-                    1fr;
-
-            }
-
-        }
-
-
-        /* ==========================================
-           Mobile
-           ========================================== */
-
-        @media (max-width: 600px) {
-
-
-            .container {
-
-                padding:
-                    15px 10px;
-
-            }
-
-
-            header {
-
-                gap: 10px;
-
-            }
-
-
-            .logo {
-
-                font-size: 40px;
-
-            }
-
-
-            header h1 {
-
-                font-size: 25px;
-
-            }
-
-
-            header p {
-
-                font-size: 14px;
-
+                gap: 20px;
             }
 
 
             .card {
 
                 padding: 18px;
-
-                border-radius: 15px;
-
             }
 
 
-            .card h2 {
+            .header h1 {
 
-                font-size: 21px;
-
-            }
-
-
-            .flower-result {
-
-                flex-direction:
-                    column;
-
-            }
-
-
-            .flower-number {
-
-                width: 40px;
-
-            }
-
-
-            button {
-
-                width: 100%;
-
-                margin:
-                    5px 0;
-
-            }
-
-
-            .upload-box {
-
-                padding:
-                    20px 10px;
-
-            }
-
-
-            .bounding-label {
-
-                font-size: 11px;
-
-                padding:
-                    3px 5px;
-
+                font-size: 28px;
             }
 
         }
 
+
+        /* =================================
+           Mobile แนวนอน
+           ================================= */
+
+        @media
+        (max-width: 900px)
+        and (orientation: landscape) {
+
+            .main-grid {
+
+                grid-template-columns: 1fr 1fr;
+            }
+
+
+            .container {
+
+                padding: 15px 0;
+            }
+
+        }
 
     </style>
 
@@ -663,60 +375,35 @@
 <div class="container">
 
 
-    <!-- ==========================================
+    <!-- =================================
          Header
-         ========================================== -->
+         ================================= -->
 
-    <header>
+    <div class="header">
 
+        <h1>🌸 Flower AI</h1>
 
-        <div class="logo">
+        <p>
+            ระบบ AI สำหรับตรวจจับชนิดของดอกไม้
+        </p>
 
-            🌸
-
-        </div>
-
-
-        <div>
-
-            <h1>
-
-                Flower AI
-
-            </h1>
+    </div>
 
 
-            <p>
-
-                ระบบ AI ตรวจจับชนิดดอกไม้
-
-            </p>
-
-        </div>
-
-
-    </header>
-
-
-    <!-- ==========================================
+    <!-- =================================
          Main
-         ========================================== -->
+         ================================= -->
 
     <div class="main-grid">
 
 
-        <!-- ======================================
-             Upload / Camera
-             ====================================== -->
+        <!-- =================================
+             ซ้าย: อัปโหลด / กล้อง
+             ================================= -->
 
-        <section class="card">
+        <div class="card">
 
-
-            <h2>
-
-                🔍 ตรวจจับชนิดดอกไม้
-
-            </h2>
+            <h2>📷 ตรวจจับดอกไม้</h2>
 
 
             <form
@@ -725,16 +412,11 @@
             >
 
 
-                <!-- เลือกรูป -->
+                <div class="upload-box">
 
-                <label class="upload-box">
-
-
-                    <span>
-
-                        📁 เลือกรูปดอกไม้
-
-                    </span>
+                    <p>
+                        เลือกรูปดอกไม้
+                    </p>
 
 
                     <input
@@ -745,545 +427,393 @@
                     >
 
 
-                </label>
-
-
-                <!-- เปิดกล้อง -->
-
-                <button
-                    type="button"
-                    id="openCamera"
-                    class="camera-button"
-                >
-
-                    📷 เปิดกล้อง
-
-                </button>
-
-
-                <!-- Camera -->
-
-                <video
-                    id="camera"
-                    autoplay
-                    playsinline
-                ></video>
-
-
-                <!-- Capture -->
-
-                <button
-                    type="button"
-                    id="captureButton"
-                    class="capture-button"
-                >
-
-                    📸 ถ่ายรูป
-
-                </button>
-
-
-                <!-- Canvas -->
-
-                <canvas
-                    id="canvas"
-                ></canvas>
-
-
-                <!-- Preview -->
-
-                <div class="preview-box">
-
-
-                    <img
-                        id="preview"
-                        alt="รูปตัวอย่าง"
+                    <button
+                        type="button"
+                        class="camera-btn"
+                        id="openCamera"
                     >
+                        📷 เปิดกล้อง
+                    </button>
 
+
+                    <video
+                        id="camera"
+                        autoplay
+                        playsinline
+                        style="display:none;"
+                    ></video>
+
+
+                    <button
+                        type="button"
+                        class="capture-btn"
+                        id="captureButton"
+                        style="display:none;"
+                    >
+                        📸 ถ่ายรูป
+                    </button>
+
+
+                    <canvas
+                        id="canvas"
+                        style="display:none;"
+                    ></canvas>
 
                 </div>
 
 
-                <!-- Detect -->
+                <br>
+
+
+                <!-- =================================
+                     รูปตัวอย่าง
+                     ================================= -->
+
+                <div class="image-area">
+
+                    <img
+                        id="preview"
+                        {% if image_data %}
+                        src="{{ image_data }}"
+                        {% endif %}
+                        style="
+                        {% if image_data %}
+                        display:block;
+                        {% else %}
+                        display:none;
+                        {% endif %}
+                        "
+                    >
+
+
+                    <!-- =================================
+                         Bounding Box
+                         ================================= -->
+
+                    {% if results %}
+
+                        {% for item in results %}
+
+                            <div
+                                class="box"
+                                style="
+                                    left: calc(
+                                        ({{ item.x - item.width / 2 }})
+                                        / {{ 640 }}
+                                        * 100%
+                                    );
+
+                                    top: calc(
+                                        ({{ item.y - item.height / 2 }})
+                                        / {{ 480 }}
+                                        * 100%
+                                    );
+
+                                    width: calc(
+                                        {{ item.width }}
+                                        / {{ 640 }}
+                                        * 100%
+                                    );
+
+                                    height: calc(
+                                        {{ item.height }}
+                                        / {{ 480 }}
+                                        * 100%
+                                    );
+                                "
+                            >
+
+                                <div class="label">
+
+                                    {{ item.thai }}
+
+                                    {{ item.confidence }}%
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                </div>
+
 
                 <button
                     type="submit"
-                    class="detect-button"
+                    class="detect-btn"
                 >
-
                     🔍 ตรวจจับดอกไม้
-
                 </button>
 
 
             </form>
 
-
-        </section>
-
-
-        <!-- ======================================
-             รูปผลการตรวจจับ
-             ====================================== -->
-
-        <section class="card">
+        </div>
 
 
-            <h2>
+        <!-- =================================
+             ขวา: ผลลัพธ์
+             ================================= -->
 
-                🖼️ ผลการตรวจจับบนรูป
+        <div class="card">
 
-            </h2>
-
-
-            {% if image_preview %}
-
-
-            <div
-                class="result-image"
-                id="resultImage"
-            >
+            <h2>🌸 ผลการตรวจจับ</h2>
 
 
-                <img
-                    src="{{ image_preview }}"
-                    id="detectedImage"
-                    alt="รูปที่ตรวจจับ"
-                >
+            {% if results %}
 
 
-                <!--
-                    JavaScript
-                    จะสร้าง Bounding Box
-                    ตรงนี้
-                -->
+                {% for item in results %}
 
-                <div id="boxes"></div>
+                    <div class="result-card">
 
 
-            </div>
+                        <h3>
+
+                            {{ item.thai }}
+
+                        </h3>
+
+
+                        <p>
+
+                            <b>ชนิด:</b>
+
+                            {{ item.class }}
+
+                        </p>
+
+
+                        <p class="confidence">
+
+                            ความแม่นยำ:
+                            {{ item.confidence }}%
+
+                        </p>
+
+
+                        <p>
+
+                            <b>ความหมาย:</b>
+
+                            {{ item.meaning }}
+
+                        </p>
+
+
+                        <p>
+
+                            <b>โอกาสที่เหมาะสม:</b>
+
+                            {{ item.opportunity }}
+
+                        </p>
+
+
+                    </div>
+
+                {% endfor %}
 
 
             {% else %}
 
-
-            <p>
-
-                รูปที่เลือกจะแสดงตรงนี้
-
-            </p>
-
+                <p>
+                    ยังไม่มีผลการตรวจจับ
+                </p>
 
             {% endif %}
 
 
-        </section>
+            <!-- =================================
+                 Error
+                 ================================= -->
 
+            {% if error %}
 
-    </div>
+                <div class="error">
 
+                    <b>เกิดข้อผิดพลาด</b>
 
-    <!-- ==========================================
-         Error
-         ========================================== -->
-
-    {% if error %}
-
-
-    <section class="error-box">
-
-
-        <h3>
-
-            ⚠️ เกิดข้อผิดพลาด
-
-        </h3>
-
-
-        <p>
-
-            {{ error }}
-
-        </p>
-
-
-    </section>
-
-
-    {% endif %}
-
-
-    <!-- ==========================================
-         ผลข้อมูลดอกไม้
-         ========================================== -->
-
-    {% if results %}
-
-
-    <section class="card">
-
-
-        <h2>
-
-            🌸 ข้อมูลดอกไม้ที่ตรวจพบ
-
-        </h2>
-
-
-        <div class="results-container">
-
-
-            {% for result in results %}
-
-
-            <div class="flower-result">
-
-
-                <div class="flower-number">
-
-                    {{ loop.index }}
+                    <p>
+                        {{ error }}
+                    </p>
 
                 </div>
 
-
-                <div class="flower-info">
-
-
-                    <h3>
-
-                        {{ result.thai }}
-
-                    </h3>
-
-
-                    <p>
-
-                        <b>
-                            AI ตรวจพบ:
-                        </b>
-
-                        {{ result.class }}
-
-                    </p>
-
-
-                    <p>
-
-                        <b>
-                            ความแม่นยำ:
-                        </b>
-
-                        {{ result.confidence }}%
-
-                    </p>
-
-
-                    <p>
-
-                        <b>
-                            ความหมาย:
-                        </b>
-
-                        {{ result.meaning }}
-
-                    </p>
-
-
-                    <p>
-
-                        <b>
-                            โอกาส:
-                        </b>
-
-                        {{ result.opportunity }}
-
-                    </p>
-
-
-                </div>
-
-
-            </div>
-
-
-            {% endfor %}
+            {% endif %}
 
 
         </div>
 
-
-    </section>
-
-
-    {% endif %}
-
-
-    <!-- ==========================================
-         Footer
-         ========================================== -->
-
-    <footer>
-
-        🌸 Flower AI Project
-
-    </footer>
-
+    </div>
 
 </div>
 
 
-<!-- ==========================================
-     JavaScript
-     ========================================== -->
-
 <script>
 
 
-// ==========================================
-// Element
-// ==========================================
+    // =========================================
+    // Element
+    // =========================================
 
-const imageInput =
-    document.getElementById(
-        "imageInput"
+    const imageInput =
+        document.getElementById("imageInput");
+
+    const openCamera =
+        document.getElementById("openCamera");
+
+    const captureButton =
+        document.getElementById("captureButton");
+
+    const camera =
+        document.getElementById("camera");
+
+    const canvas =
+        document.getElementById("canvas");
+
+    const preview =
+        document.getElementById("preview");
+
+
+    let stream = null;
+
+
+    // =========================================
+    // เปิดกล้อง
+    // =========================================
+
+    openCamera.addEventListener(
+        "click",
+        async function () {
+
+            try {
+
+                stream =
+                    await navigator.mediaDevices
+                    .getUserMedia({
+
+                        video: {
+                            facingMode:
+                            "environment"
+                        },
+
+                        audio: false
+
+                    });
+
+
+                camera.srcObject =
+                    stream;
+
+
+                camera.style.display =
+                    "block";
+
+
+                captureButton.style.display =
+                    "inline-block";
+
+            }
+
+            catch (error) {
+
+                alert(
+                    "ไม่สามารถเปิดกล้องได้"
+                );
+
+                console.log(error);
+
+            }
+
+        }
     );
 
 
-const openCamera =
-    document.getElementById(
-        "openCamera"
-    );
+    // =========================================
+    // ถ่ายรูป
+    // =========================================
+
+    captureButton.addEventListener(
+        "click",
+        function () {
 
 
-const captureButton =
-    document.getElementById(
-        "captureButton"
-    );
+            canvas.width =
+                camera.videoWidth;
 
 
-const camera =
-    document.getElementById(
-        "camera"
-    );
+            canvas.height =
+                camera.videoHeight;
 
 
-const canvas =
-    document.getElementById(
-        "canvas"
-    );
+            const context =
+                canvas.getContext("2d");
 
 
-const preview =
-    document.getElementById(
-        "preview"
-    );
+            context.drawImage(
+                camera,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
 
 
-let stream = null;
-
-
-// ==========================================
-// เลือกรูปจากเครื่อง
-// ==========================================
-
-imageInput.addEventListener(
-    "change",
-    function () {
-
-
-        if (
-            imageInput.files.length > 0
-        ) {
-
-
-            const file =
-                imageInput.files[0];
+            const imageData =
+                canvas.toDataURL(
+                    "image/png"
+                );
 
 
             preview.src =
-                URL.createObjectURL(
-                    file
-                );
+                imageData;
 
 
             preview.style.display =
                 "block";
 
 
-        }
-
-    }
-);
+            canvas.toBlob(
+                function (blob) {
 
 
-// ==========================================
-// เปิดกล้อง
-// ==========================================
-
-openCamera.addEventListener(
-    "click",
-    async function () {
-
-
-        try {
-
-
-            stream =
-                await navigator
-                .mediaDevices
-                .getUserMedia({
-
-                    video: {
-
-                        facingMode:
-                            "environment"
-
-                    },
-
-                    audio: false
-
-                });
+                    const file =
+                        new File(
+                            [blob],
+                            "camera_flower.png",
+                            {
+                                type:
+                                "image/png"
+                            }
+                        );
 
 
-            camera.srcObject =
-                stream;
+                    const dataTransfer =
+                        new DataTransfer();
 
 
-            camera.style.display =
-                "block";
+                    dataTransfer.items.add(
+                        file
+                    );
 
 
-            captureButton.style.display =
-                "block";
+                    imageInput.files =
+                        dataTransfer.files;
 
 
-        }
-
-
-        catch (error) {
-
-
-            alert(
-                "ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตให้เว็บไซต์ใช้กล้อง"
-            );
-
-
-            console.log(error);
-
-
-        }
-
-    }
-);
-
-
-// ==========================================
-// ถ่ายรูป
-// ==========================================
-
-captureButton.addEventListener(
-    "click",
-    function () {
-
-
-        canvas.width =
-            camera.videoWidth;
-
-
-        canvas.height =
-            camera.videoHeight;
-
-
-        const context =
-            canvas.getContext(
-                "2d"
-            );
-
-
-        context.drawImage(
-
-            camera,
-
-            0,
-
-            0,
-
-            canvas.width,
-
-            canvas.height
-
-        );
-
-
-        // ------------------------------
-        // แสดง Preview
-        // ------------------------------
-
-        const imageData =
-            canvas.toDataURL(
+                },
                 "image/png"
             );
 
 
-        preview.src =
-            imageData;
+            // ปิดกล้อง
 
+            if (stream) {
 
-        preview.style.display =
-            "block";
-
-
-        // ------------------------------
-        // Canvas → File
-        // ------------------------------
-
-        canvas.toBlob(
-            function (blob) {
-
-
-                const file =
-                    new File(
-
-                        [blob],
-
-                        "camera_flower.png",
-
-                        {
-                            type:
-                                "image/png"
-                        }
-
-                    );
-
-
-                const dataTransfer =
-                    new DataTransfer();
-
-
-                dataTransfer.items.add(
-                    file
-                );
-
-
-                imageInput.files =
-                    dataTransfer.files;
-
-
-            },
-
-            "image/png"
-
-        );
-
-
-        // ------------------------------
-        // ปิดกล้อง
-        // ------------------------------
-
-        if (stream) {
-
-
-            stream
+                stream
                 .getTracks()
                 .forEach(
                     function (track) {
@@ -1294,294 +824,52 @@ captureButton.addEventListener(
                 );
 
 
-            stream = null;
+                stream = null;
+
+            }
+
+
+            camera.style.display =
+                "none";
+
+
+            captureButton.style.display =
+                "none";
 
         }
-
-
-        camera.style.display =
-            "none";
-
-
-        captureButton.style.display =
-            "none";
-
-
-    }
-
-);
-
-
-// ==========================================
-// Bounding Box
-// ==========================================
-
-const detectedImage =
-    document.getElementById(
-        "detectedImage"
     );
 
 
-const boxes =
-    document.getElementById(
-        "boxes"
-    );
+    // =========================================
+    // เลือกรูปจากเครื่อง
+    // =========================================
 
+    imageInput.addEventListener(
+        "change",
+        function () {
 
-// ==========================================
-// ถ้ามีผลการตรวจจับ
-// ==========================================
 
-{% if results and image_preview %}
+            if (
+                imageInput.files.length > 0
+            ) {
 
+                const file =
+                    imageInput.files[0];
 
-const predictions = [
 
+                preview.src =
+                    URL.createObjectURL(
+                        file
+                    );
 
-    {% for result in results %}
 
+                preview.style.display =
+                    "block";
 
-    {
-
-        className:
-            {{ result.thai | tojson }},
-
-        classEnglish:
-            {{ result.class | tojson }},
-
-        confidence:
-            {{ result.confidence }},
-
-        x:
-            {{ result.x }},
-
-        y:
-            {{ result.y }},
-
-        width:
-            {{ result.width }},
-
-        height:
-            {{ result.height }}
-
-    }
-
-
-    {% if not loop.last %}
-
-    ,
-
-    {% endif %}
-
-
-    {% endfor %}
-
-
-];
-
-
-// ==========================================
-// เมื่อรูปโหลดเสร็จ
-// ==========================================
-
-if (detectedImage) {
-
-
-    if (
-        detectedImage.complete
-    ) {
-
-        drawBoxes();
-
-    }
-
-
-    detectedImage.addEventListener(
-        "load",
-        drawBoxes
-    );
-
-}
-
-
-// ==========================================
-// วาด Bounding Box
-// ==========================================
-
-function drawBoxes() {
-
-
-    if (
-        !detectedImage ||
-        !boxes
-    ) {
-
-        return;
-
-    }
-
-
-    boxes.innerHTML = "";
-
-
-    // ------------------------------
-    // ขนาดรูปจริง
-    // ------------------------------
-
-    const originalWidth =
-        detectedImage.naturalWidth;
-
-
-    const originalHeight =
-        detectedImage.naturalHeight;
-
-
-    // ------------------------------
-    // ขนาดรูปที่แสดงบนเว็บ
-    // ------------------------------
-
-    const displayedWidth =
-        detectedImage.clientWidth;
-
-
-    const displayedHeight =
-        detectedImage.clientHeight;
-
-
-    if (
-        originalWidth === 0 ||
-        originalHeight === 0
-    ) {
-
-        return;
-
-    }
-
-
-    // ------------------------------
-    // Scale
-    // ------------------------------
-
-    const scaleX =
-        displayedWidth /
-        originalWidth;
-
-
-    const scaleY =
-        displayedHeight /
-        originalHeight;
-
-
-    // ==================================
-    // วนทุกดอก
-    // ==================================
-
-    predictions.forEach(
-        function (prediction) {
-
-
-            // --------------------------
-            // สร้างกรอบ
-            // --------------------------
-
-            const box =
-                document.createElement(
-                    "div"
-                );
-
-
-            box.className =
-                "bounding-box";
-
-
-            // --------------------------
-            // Roboflow ใช้
-            // x,y = จุดกึ่งกลาง
-            // --------------------------
-
-            const left =
-                (
-                    prediction.x -
-                    prediction.width / 2
-                ) * scaleX;
-
-
-            const top =
-                (
-                    prediction.y -
-                    prediction.height / 2
-                ) * scaleY;
-
-
-            const width =
-                prediction.width *
-                scaleX;
-
-
-            const height =
-                prediction.height *
-                scaleY;
-
-
-            // --------------------------
-            // กำหนดตำแหน่ง
-            // --------------------------
-
-            box.style.left =
-                left + "px";
-
-
-            box.style.top =
-                top + "px";
-
-
-            box.style.width =
-                width + "px";
-
-
-            box.style.height =
-                height + "px";
-
-
-            // ==================================
-            // Label
-            // ==================================
-
-            const label =
-                document.createElement(
-                    "div"
-                );
-
-
-            label.className =
-                "bounding-label";
-
-
-            label.innerText =
-                prediction.className
-                + " "
-                + prediction.confidence
-                + "%";
-
-
-            box.appendChild(
-                label
-            );
-
-
-            boxes.appendChild(
-                box
-            );
-
+            }
 
         }
     );
-
-}
-
-
-{% endif %}
-
 
 </script>
 
