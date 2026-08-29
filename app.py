@@ -16,17 +16,12 @@ app = Flask(__name__)
 
 
 # ==========================================
-# 3. Roboflow API
+# 3. Roboflow Workflow API
 # ==========================================
 
 
-RF_WORKFLOW_URL = os.environ.get(
-    "RF_WORKFLOW_URL"
-)
-
-RF_API_KEY = os.environ.get(
-    "RF_API_KEY"
-)
+API_URL = os.environ.get("API_URL")
+API_KEY = os.environ.get("API_KEY")
 
 
 # ==========================================
@@ -34,12 +29,6 @@ RF_API_KEY = os.environ.get(
 # ==========================================
 
 flowers = {
-
-    "bougainvillea": {
-        "thai": "เฟื่องฟ้า",
-        "meaning": "ความรุ่งเรือง ความก้าวหน้า และชีวิตที่สดใส",
-        "opportunity": "เลื่อนตำแหน่ง เปิดกิจการใหม่ ขึ้นบ้านใหม่ งานแต่งงาน หรืออวยพรให้ชีวิตประสบความสำเร็จและมีความสุข"
-    },
 
     "carnation": {
         "thai": "คาร์เนชั่น",
@@ -144,9 +133,8 @@ def home():
     error = None
     image_preview = None
 
-
     # --------------------------------------
-    # ถ้ายังไม่ได้กดตรวจจับ
+    # GET
     # --------------------------------------
 
     if request.method == "GET":
@@ -158,79 +146,57 @@ def home():
             image_preview=None
         )
 
-
     # ======================================
     # POST
     # ======================================
 
     try:
 
-
         # ----------------------------------
-        # ตรวจว่ามีไฟล์หรือไม่
+        # ตรวจไฟล์
         # ----------------------------------
 
         if "image" not in request.files:
 
-            error = "ไม่พบรูปภาพ"
-
             return render_template(
                 "index.html",
                 results=None,
-                error=error,
+                error="ไม่พบรูปภาพ",
                 image_preview=None
             )
-
 
         image = request.files["image"]
 
-
-        # ----------------------------------
-        # ตรวจชื่อไฟล์
-        # ----------------------------------
-
         if image.filename == "":
 
-            error = "กรุณาเลือกรูปภาพ"
-
             return render_template(
                 "index.html",
                 results=None,
-                error=error,
+                error="กรุณาเลือกรูปภาพ",
                 image_preview=None
             )
 
 
-        # ----------------------------------
-        # ตรวจ Roboflow
-        # ----------------------------------
+        # ==================================
+        # ตรวจ Environment Variables
+        # ==================================
 
-        if not RF_WORKFLOW_URL:
-
-            error = (
-                "ไม่พบ RF_WORKFLOW_URL "
-                "กรุณาตั้งค่าใน Render"
-            )
+        if not API_URL:
 
             return render_template(
                 "index.html",
                 results=None,
-                error=error,
+                error="ไม่พบ API_URL ใน Render",
                 image_preview=None
             )
 
 
-        if not RF_API_KEY:
-
-            error = (
-                "ไม่พบ RF_API_KEY "
-                "กรุณาตั้งค่าใน Render"
-            )
+        if not API_KEY:
 
             return render_template(
                 "index.html",
                 results=None,
-                error=error,
+                error="ไม่พบ API_KEY ใน Render",
                 image_preview=None
             )
 
@@ -243,19 +209,17 @@ def home():
 
 
         # ==================================
-        # แสดงรูปเดิมในหน้าเว็บ
+        # แสดงรูปที่อัปโหลดค้างไว้
         # ==================================
 
         image_base64 = base64.b64encode(
             image_bytes
         ).decode("utf-8")
 
-
         image_type = (
             image.content_type
             or "image/jpeg"
         )
-
 
         image_preview = (
             f"data:{image_type};base64,{image_base64}"
@@ -272,7 +236,7 @@ def home():
                 "application/json",
 
             "Authorization":
-                f"Bearer {RF_API_KEY}"
+                f"Bearer {API_KEY}"
 
         }
 
@@ -283,9 +247,11 @@ def home():
 
                 "image": {
 
-                    "type": "base64",
+                    "type":
+                        "base64",
 
-                    "value": image_base64
+                    "value":
+                        image_base64
 
                 }
 
@@ -296,28 +262,28 @@ def home():
 
         response = requests.post(
 
-            RF_WORKFLOW_URL,
+            API_URL,
 
             headers=headers,
 
             json=payload,
 
-            timeout=60
+            timeout=120
 
         )
 
 
         # ==================================
-        # Debug ใน Render Logs
+        # Debug Render Logs
         # ==================================
 
         print(
-            "Roboflow Workflow Status:",
+            "Roboflow Status:",
             response.status_code
         )
 
         print(
-            "Roboflow Workflow Response:",
+            "Roboflow Response:",
             response.text
         )
 
@@ -344,7 +310,7 @@ def home():
 
 
         # ==================================
-        # แปลง JSON
+        # JSON
         # ==================================
 
         try:
@@ -353,133 +319,169 @@ def home():
 
         except Exception:
 
-            error = (
-                "Roboflow ไม่ได้ส่งข้อมูล JSON กลับมา"
-            )
-
             return render_template(
                 "index.html",
                 results=None,
-                error=error,
+                error="Roboflow ไม่ได้ส่งข้อมูล JSON กลับมา",
                 image_preview=image_preview
             )
 
 
         # ==================================
-        # อ่าน Predictions จาก Workflow
+        # DEBUG โครงสร้าง Response
+        # ==================================
+
+        print(
+            "Roboflow JSON:",
+            data
+        )
+
+
+        # ==================================
+        # ดึง outputs จาก Workflow
+        # ==================================
+
+        outputs = data.get(
+            "outputs",
+            []
+        )
+
+
+        if not isinstance(outputs, list):
+
+            outputs = [outputs]
+
+
+        # ==================================
+        # ดึง predictions
         # ==================================
 
         predictions = []
 
 
-        # ----------------------------------
-        # แบบที่ 1
-        # predictions อยู่ตรง root
-        # ----------------------------------
+        for output in outputs:
 
-        if isinstance(data, dict):
+            # ป้องกัน error:
+            # 'str' object has no attribute 'get'
 
-            if "predictions" in data:
+            if not isinstance(output, dict):
 
-                predictions = data.get(
-                    "predictions",
-                    []
+                continue
+
+
+            output_predictions = output.get(
+                "predictions",
+                []
+            )
+
+
+            # ------------------------------
+            # predictions เป็น list
+            # ------------------------------
+
+            if isinstance(
+                output_predictions,
+                list
+            ):
+
+                predictions.extend(
+                    output_predictions
                 )
 
 
-        # ----------------------------------
-        # แบบที่ 2
-        # predictions อยู่ใน outputs
-        # ----------------------------------
+            # ------------------------------
+            # predictions เป็น dict
+            # ------------------------------
 
-        if not predictions:
+            elif isinstance(
+                output_predictions,
+                dict
+            ):
 
-            if isinstance(data, dict):
+                # บาง Workflow อาจส่ง
+                # predictions เป็น dictionary
 
-                outputs = data.get(
-                    "outputs"
-                )
+                if isinstance(
+                    output_predictions.get(
+                        "predictions"
+                    ),
+                    list
+                ):
 
+                    predictions.extend(
+                        output_predictions[
+                            "predictions"
+                        ]
+                    )
 
-                if isinstance(outputs, dict):
+                else:
 
-                    predictions = outputs.get(
-                        "predictions",
-                        []
+                    predictions.append(
+                        output_predictions
                     )
 
 
-                elif isinstance(outputs, list):
-
-                    for output in outputs:
-
-                        if isinstance(
-                            output,
-                            dict
-                        ):
-
-                            if "predictions" in output:
-
-                                predictions = (
-                                    output.get(
-                                        "predictions",
-                                        []
-                                    )
-                                )
-
-                                break
-
-
-        # ----------------------------------
-        # แบบที่ 3
-        # Workflow คืน list
-        # ----------------------------------
-
-        if not predictions:
-
-            if isinstance(data, list):
-
-                if len(data) > 0:
-
-                    first_result = data[0]
-
-                    if isinstance(
-                        first_result,
-                        dict
-                    ):
-
-                        predictions = (
-                            first_result.get(
-                                "predictions",
-                                []
-                            )
-                        )
-
-
         # ==================================
-        # ตรวจ Predictions
+        # ถ้า Workflow ส่ง predictions
+        # มาในรูปแบบอื่น
         # ==================================
 
         if not predictions:
 
-            print(
-                "ไม่พบ predictions จาก Workflow"
+            top_predictions = data.get(
+                "predictions",
+                []
             )
 
-            print(
-                "ข้อมูลทั้งหมด:",
-                data
-            )
+            if isinstance(
+                top_predictions,
+                list
+            ):
 
-            error = (
-                "ไม่พบดอกไม้ที่ AI รู้จักในรูปภาพ "
-                "หรือ Workflow ไม่ได้ส่ง predictions กลับมา"
-            )
+                predictions = (
+                    top_predictions
+                )
+
+            elif isinstance(
+                top_predictions,
+                dict
+            ):
+
+                predictions = [
+                    top_predictions
+                ]
+
+
+        # ==================================
+        # ตรวจว่ามี Prediction หรือไม่
+        # ==================================
+
+        valid_predictions = []
+
+
+        for prediction in predictions:
+
+            if isinstance(
+                prediction,
+                dict
+            ):
+
+                valid_predictions.append(
+                    prediction
+                )
+
+
+        predictions = valid_predictions
+
+
+        if not predictions:
 
             return render_template(
                 "index.html",
                 results=None,
-                error=error,
+                error=(
+                    "ไม่พบดอกไม้ที่ AI รู้จักในรูปภาพ"
+                ),
                 image_preview=image_preview
             )
 
@@ -491,16 +493,12 @@ def home():
         results = []
 
 
-        # ==================================
-        # วนทุกดอกที่ตรวจพบ
-        # ==================================
-
         for prediction in predictions:
 
 
-            # ------------------------------
-            # ชื่อ Class
-            # ------------------------------
+            # --------------------------------
+            # Class
+            # --------------------------------
 
             flower_name = prediction.get(
                 "class",
@@ -511,9 +509,9 @@ def home():
             )
 
 
-            # ------------------------------
+            # --------------------------------
             # Confidence
-            # ------------------------------
+            # --------------------------------
 
             confidence = prediction.get(
                 "confidence",
@@ -521,15 +519,36 @@ def home():
             )
 
 
+            try:
+
+                confidence = float(
+                    confidence
+                )
+
+            except:
+
+                confidence = 0
+
+
+            # Roboflow confidence
+            # ปกติเป็น 0-1
+
+            if confidence <= 1:
+
+                confidence = (
+                    confidence * 100
+                )
+
+
             confidence = round(
-                confidence * 100,
+                confidence,
                 2
             )
 
 
-            # ------------------------------
+            # --------------------------------
             # Bounding Box
-            # ------------------------------
+            # --------------------------------
 
             x = prediction.get(
                 "x",
@@ -553,7 +572,7 @@ def home():
 
 
             # ==================================
-            # ถ้ามีข้อมูลดอกไม้
+            # ข้อมูลดอกไม้
             # ==================================
 
             if flower_name in flowers:
@@ -561,7 +580,6 @@ def home():
                 info = flowers[
                     flower_name
                 ]
-
 
                 results.append({
 
@@ -594,10 +612,6 @@ def home():
 
                 })
 
-
-            # ==================================
-            # ถ้าไม่มีข้อมูล
-            # ==================================
 
             else:
 
@@ -634,7 +648,7 @@ def home():
 
 
         # ==================================
-        # ส่งกลับหน้าเว็บ
+        # ส่งผลกลับ HTML
         # ==================================
 
         return render_template(
@@ -651,7 +665,7 @@ def home():
 
 
     # ======================================
-    # Error
+    # Request Error
     # ======================================
 
     except requests.exceptions.RequestException as e:
@@ -666,6 +680,10 @@ def home():
             + str(e)
         )
 
+
+    # ======================================
+    # General Error
+    # ======================================
 
     except Exception as e:
 
